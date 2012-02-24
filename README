@@ -1,0 +1,7 @@
+fito2sa by mewse
+
+this is some pretty terrible php code to parse a copy+pasted
+fitocracy workout, strip the points, and add some SA formatting
+so the workout headers are in bold, rep lines begin with a dash,
+and comments are in italics. it should work with chrome and
+firefox's methods of c/p, haven't tested it with MSIE
