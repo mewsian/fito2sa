@@ -24,6 +24,7 @@ if(array_key_exists('_fito_submit', $_POST))
 				$outstr .= $in_arr[$i];
 				$i++;
 			}
+			$outstr = rtrim($outstr);
 			$outstr .= "<br>\n";
 		}else{
 			// its a label line or comment line
@@ -33,12 +34,22 @@ if(array_key_exists('_fito_submit', $_POST))
 				$templine .= $in_arr[$i];
 				$i++;
 			}
-			// trailing colon means label, else comment
-			$templinearr = str_split($templine);
-			if($templinearr[count($templinearr)-2] == ":")
+			$templine = trim($templine);
+			// is it an "earns" line?
+			if(strpos($templine,"earned")!==FALSE)
+			{
+				$username = strtok($templine," ");
+				$username = "[url=http://www.fitocracy.com/profile/".$username."]".$username."[/url] ";
+				$templine = substr_replace($templine, $username, 0, strpos($templine,"earned"));
+				$outstr .= $templine."<br>\n";
+			} elseif(substr($templine,-1) == ":") {
+				// trailing colon means label, else comment
 				$outstr .= "[b]".$templine."[/b]<br>\n";
-			else
+			} else {
+				if(substr($templine,0,7)=="http://")
+					$templine = "[url=".$templine."]".$templine."[/url]";
 				$outstr .= "- [i]".$templine."[/i]<br>\n";
+			}
 		}
 	}
 }
@@ -51,14 +62,30 @@ if(array_key_exists('_fito_submit', $_POST))
 </head>
 
 <body bgcolor="#FFFFFF" text="#000000">
+
+<script type="text/javascript" src="ZeroClipboard.js"></script>
+
 <h1>mewse's handy dandy fitocracy to SA converter</h1>
 <?php
 if(isset($outstr))
 {
+
 	echo "<table border=\"1\" cellpadding=\"5\"><td>\n";
+	$outstr .= "[sub]copied from fitocracy with [url=http://www.doomers.org/fito2sa/]fito2sa[/url][/sub]<br>\n";
 	echo $outstr;
-	echo "[sub]copied from fitocracy with [url=http://www.doomers.org/fito2sa/]fito2sa[/url][/sub]\n";
 	echo "</td></table>\n";
+
+	$jsoutstr = str_replace("<br>\n","\\n",addslashes($outstr));
+?>
+	<div id="d_clip_button" style="border:1px solid black; width:200px; padding:5px;">Copy To Clipboard</div>
+        
+	<script language="JavaScript">
+		var clip = new ZeroClipboard.Client();
+		var jsstr = '<?php echo $jsoutstr; ?>';
+		clip.setText( jsstr );
+		clip.glue( 'd_clip_button' );
+	</script>
+<?php
 }else{
 ?>
 <p>Copy and paste your fitocracy crap below and it will
