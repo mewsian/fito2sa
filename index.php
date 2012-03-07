@@ -3,6 +3,7 @@ if(array_key_exists('_fito_submit', $_POST))
 {
 	// we have a submission
 	$in_arr = str_split($_POST['fito_string']);
+	$firstline = true;
 	for($i=0; $i<count($in_arr); $i++)
 	{
 		// ignore spaces at the beginning of a line
@@ -26,6 +27,7 @@ if(array_key_exists('_fito_submit', $_POST))
 			}
 			$outstr = rtrim($outstr);
 			$outstr .= "<br>\n";
+			$firstline = false;
 		}else{
 			// its a label line or comment line
 			$templine = "";
@@ -42,13 +44,22 @@ if(array_key_exists('_fito_submit', $_POST))
 				$username = "[url=http://www.fitocracy.com/profile/".$username."]".$username."[/url] ";
 				$templine = substr_replace($templine, $username, 0, strpos($templine,"earned"));
 				$outstr .= $templine."<br>\n";
+				$firstline = $false;
 			} elseif(substr($templine,-1) == ":") {
-				// trailing colon means label, else comment
+				// trailing colon means workout name
+				//if(!$firstline)
+				//	$outstr .= "<br>\n";
 				$outstr .= "[b]".$templine."[/b]<br>\n";
+				$firstline = $false;
+			} elseif($templine == "") {
+				// empty line
+				$outstr .= "<br>\n";
+				$firstline = $false;
 			} else {
 				if(substr($templine,0,7)=="http://")
 					$templine = "[url=".$templine."]".$templine."[/url]";
 				$outstr .= "- [i]".$templine."[/i]<br>\n";
+				$firstline = $false;
 			}
 		}
 	}
