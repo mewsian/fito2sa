@@ -82,13 +82,13 @@ if(isset($outstr))
 {
 
 	echo "<table border=\"1\" cellpadding=\"5\"><td>\n";
-	$outstr .= "[sub]copied from fitocracy with [url=http://www.doomers.org/fito2sa/]fito2sa[/url][/sub]<br>\n";
+	$outstr .= "[sub][url=http://www.doomers.org/fito2sa/]fito2sa[/url][/sub]<br>\n";
 	echo $outstr;
 	echo "</td></table>\n";
 
 	$jsoutstr = str_replace("<br>\n","\\n",addslashes($outstr));
 ?>
-	<div id="d_clip_button" style="border:1px solid black; width:200px; padding:5px;">Copy To Clipboard</div>
+	<div id="d_clip_button" style="border:1px solid black; width:200px; padding:5px;"><center>Copy To Clipboard</center></div>
         
 	<script language="JavaScript">
 		var clip = new ZeroClipboard.Client();
