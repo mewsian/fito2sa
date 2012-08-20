@@ -37,12 +37,15 @@ if(array_key_exists('_fito_submit', $_POST))
 				$i++;
 			}
 			$templine = trim($templine);
-			// is it an "earns" line?
-			if(strpos($templine,"earned")!==FALSE)
+			// is it a "Tracked" line? also make sure they
+			// copied their username so that "Tracked" isn't
+			// at position zero
+			if(strpos($templine,"Tracked")!==FALSE &&
+			   strpos($templine,"Tracked")!==0)
 			{
 				$username = strtok($templine," ");
 				$username = "[url=http://www.fitocracy.com/profile/".$username."]".$username."[/url] ";
-				$templine = substr_replace($templine, $username, 0, strpos($templine,"earned"));
+				$templine = substr_replace($templine, $username, 0, strpos($templine,"Tracked"));
 				$outstr .= $templine."<br>\n";
 				$firstline = $false;
 			} elseif(substr($templine,-1) == ":") {
