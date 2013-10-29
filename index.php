@@ -1,71 +1,51 @@
 <?php
+
+function is_reps_line($in_str)
+{
+    $tokens = explode(" ",$in_str);
+    if(intval($tokens[sizeof($tokens)-1]) > 0)
+        return true;
+    else
+        return false;
+}
+
 if(array_key_exists('_fito_submit', $_POST))
 {
 	// we have a submission
-	$in_arr = str_split($_POST['fito_string']);
-	$firstline = true;
-	for($i=0; $i<count($in_arr); $i++)
-	{
-		// ignore spaces at the beginning of a line
-		while($in_arr[$i] == " " && $i < count($in_arr)) $i++;
+	$lines = explode("\n",$_POST['fito_string']);
+    $outstr = "";
 
-		if($in_arr[$i] >= '0' && $in_arr[$i] <= '9')
-		{
-			// its a reps line
-			$outstr .= "- ";
-			while($in_arr[$i] != "\n" && $i < count($in_arr))
-			{
-				if($in_arr[$i] == '(')
-				{
-					while($in_arr[$i] != ')' && $i < count($in_arr)) $i++;
-					$i++;
-				}
-				if($i >= count($in_arr))
-					break;
-				$outstr .= $in_arr[$i];
-				$i++;
-			}
-			$outstr = rtrim($outstr);
-			$outstr .= "<br>\n";
-			$firstline = false;
-		}else{
-			// its a label line or comment line
-			$templine = "";
-			while($in_arr[$i] != "\n" && $i < count($in_arr))
-			{
-				$templine .= $in_arr[$i];
-				$i++;
-			}
-			$templine = trim($templine);
-			// is it a "Tracked" line? also make sure they
-			// copied their username so that "Tracked" isn't
-			// at position zero
-			if(strpos($templine,"Tracked")!==FALSE &&
-			   strpos($templine,"Tracked")!==0)
-			{
-				$username = strtok($templine," ");
-				$username = "[url=http://www.fitocracy.com/profile/".$username."]".$username."[/url] ";
-				$templine = substr_replace($templine, $username, 0, strpos($templine,"Tracked"));
-				$outstr .= $templine."<br>\n";
-				$firstline = $false;
-			} elseif(substr($templine,-1) == ":") {
-				// trailing colon means workout name
-				//if(!$firstline)
-				//	$outstr .= "<br>\n";
-				$outstr .= "[b]".$templine."[/b]<br>\n";
-				$firstline = $false;
-			} elseif($templine == "") {
-				// empty line
-				$outstr .= "<br>\n";
-				$firstline = $false;
-			} else {
-				if(substr($templine,0,7)=="http://")
-					$templine = "[url=".$templine."]".$templine."[/url]";
-				$outstr .= "- [i]".$templine."[/i]<br>\n";
-				$firstline = $false;
-			}
-		}
-	}
+	for($i=0; $i<sizeof($lines); $i++)
+    {
+        // check for "tracked a workout" line
+        $tracked = strpos($lines[$i],"tracked a workout");
+        if($tracked !== false)
+        {
+            $username = substr($lines[$i],0,$tracked);
+            $outstr .= "[url=http://www.fitocracy.com/profile/".$username."]".$username."[/url] ";
+            $outstr .= "tracked a workout<br>\n";
+            continue;
+        }
+        $tokens = explode(" ",$lines[$i]);
+        if(is_reps_line($lines[$i]))
+        {
+            // reps line probably
+            $outstr .= "- ";
+            for($j=0; $j<sizeof($tokens)-1; $j++)
+                $outstr.=$tokens[$j]." ";
+            $outstr .= "<br>\n";
+        }else{
+            // look ahead to next line to see if it's a comment or workout name
+            if(is_reps_line($lines[$i+1]))
+            {
+                // workout name probably
+                $outstr .= "[b]".trim($lines[$i])."[/b]<br>\n";
+            }else{
+                // probably a comment line
+                $outstr .= "- [i]".trim($lines[$i])."[/i]<br>\n";
+            }
+        }
+    }
 }
 ?>
 
@@ -78,6 +58,25 @@ if(array_key_exists('_fito_submit', $_POST))
 <body bgcolor="#FFFFFF" text="#000000">
 
 <script type="text/javascript" src="ZeroClipboard.js"></script>
+
+<!-- Piwik -->
+<script type="text/javascript">
+  var _paq = _paq || [];
+  _paq.push(["trackPageView"]);
+  _paq.push(["enableLinkTracking"]);
+
+  (function() {
+    var u=(("https:" == document.location.protocol) ? "https" : "http") + "://doomers.org/piwik/piwik/";
+    _paq.push(["setTrackerUrl", u+"piwik.php"]);
+    _paq.push(["setSiteId", "2"]);
+    var d=document, g=d.createElement("script"), s=d.getElementsByTagName("script")[0]; g.type="text/javascript";
+    g.defer=true; g.async=true; g.src=u+"piwik.js"; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+<noscript>
+<img src="http://doomers.org/piwik/piwik/piwik.php?idsite=2&amp;rec=1" style="border:0" alt="" />
+</noscript>
+<!-- End Piwik Code -->
 
 <h1>mewse's handy dandy fitocracy to SA converter</h1>
 <?php
