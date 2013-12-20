@@ -2,7 +2,7 @@
 
 function is_reps_line($in_str)
 {
-    $tokens = explode(" ",$in_str);
+    $tokens = explode(" ",trim($in_str));
     if(intval($tokens[sizeof($tokens)-1]) > 0)
         return true;
     else
@@ -26,6 +26,9 @@ if(array_key_exists('_fito_submit', $_POST))
             $outstr .= "tracked a workout<br>\n";
             continue;
         }
+
+        $lines[$i] = trim($lines[$i]);
+
         $tokens = explode(" ",$lines[$i]);
         if(is_reps_line($lines[$i]))
         {
@@ -35,6 +38,10 @@ if(array_key_exists('_fito_submit', $_POST))
                 $outstr.=$tokens[$j]." ";
             $outstr .= "<br>\n";
         }else{
+            // is it empty?
+            if($lines[$i] == "")
+                continue;
+
             // look ahead to next line to see if it's a comment or workout name
             if(is_reps_line($lines[$i+1]))
             {
