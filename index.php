@@ -14,6 +14,10 @@ if(array_key_exists('_fito_submit', $_POST))
 	// we have a submission
 	$lines = explode("\n",$_POST['fito_string']);
     $outstr = "";
+    // keep track if we're inside a workout block
+    // so we don't spew garbage prior to outputting
+    // a workout name ("tracked" lines, other??)
+    $in_workout = false;
 
 	for($i=0; $i<sizeof($lines); $i++)
     {
@@ -21,7 +25,21 @@ if(array_key_exists('_fito_submit', $_POST))
         $tracked = strpos($lines[$i],"tracked Workout");
         if($tracked !== false)
         {
-            $username = substr($lines[$i],0,$tracked);
+            if($tracked == 0)
+            {
+                // MSIE?? username is on previous line :|
+                $username = "";
+                // $j will be the offset as we step back through prev lines
+                $j = 0;
+                while($username == "" || $i - $j >= 0)
+                {
+                    if(trim($lines[$i - $j]) != "")
+                        $username = trim($lines[$i - $j]);
+                    $j++;
+                }
+            }else{
+                $username = substr($lines[$i],0,$tracked);
+            }
             $outstr .= "[url=http://www.fitocracy.com/profile/".$username."]".$username."[/url] ";
             $outstr .= "tracked a workout<br>\n";
             continue;
@@ -30,7 +48,7 @@ if(array_key_exists('_fito_submit', $_POST))
         $lines[$i] = trim($lines[$i]);
 
         $tokens = explode(" ",$lines[$i]);
-        if(is_reps_line($lines[$i]))
+        if(is_reps_line($lines[$i]) && $in_workout)
         {
             // reps line probably
             $outstr .= "- ";
@@ -47,9 +65,14 @@ if(array_key_exists('_fito_submit', $_POST))
             {
                 // workout name probably
                 $outstr .= "[b]".trim($lines[$i])."[/b]<br>\n";
+                $in_workout = true;
             }else{
                 // probably a comment line
-                $outstr .= "- [i]".trim($lines[$i])."[/i]<br>\n";
+                if($in_workout)
+                {
+                    $outstr .= "- [i]".trim($lines[$i])."[/i]<br>\n";
+                    $in_workout = false;
+                }
             }
         }
     }
