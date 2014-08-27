@@ -18,7 +18,7 @@ if(array_key_exists('_fito_submit', $_POST))
 	for($i=0; $i<sizeof($lines); $i++)
     {
         // check for "tracked a workout" line
-        $tracked = strpos($lines[$i],"tracked a workout");
+        $tracked = strpos($lines[$i],"tracked Workout");
         if($tracked !== false)
         {
             $username = substr($lines[$i],0,$tracked);
